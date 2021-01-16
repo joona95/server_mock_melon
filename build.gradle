@@ -1,0 +1,58 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.1'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+}
+
+group = 'com.waffle'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
+
+    // Spring Boot Starter
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    // Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Security, Authentication
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+}
+
+repositories {
+    mavenCentral()
+}
+
+/*
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'mysql:mysql-connector-java'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}*/
+
+test {
+    useJUnitPlatform()
+}
