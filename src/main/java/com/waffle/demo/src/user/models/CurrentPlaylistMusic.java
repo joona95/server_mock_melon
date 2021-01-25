@@ -31,9 +31,6 @@ public class CurrentPlaylistMusic {
     @JoinColumn(name = "musicIdx")
     private Music music;
 
-    @Column(name = "playCnt")
-    private Integer playCnt=0;
-
     @Column(name = "playOrder", nullable = false)
     private Integer order;
 

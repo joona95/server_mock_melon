@@ -52,6 +52,7 @@ public class UserService {
      * @return PostUserRes
      * @throws BaseException
      */
+    @Transactional(rollbackFor = {Exception.class})
     public PostUserRes createUser(PostUserReq postUserReq) throws BaseException {
         User existsUser = null;
         try {
@@ -85,6 +86,13 @@ public class UserService {
         // 3. 유저 정보 저장
         try {
             user = userRepository.save(user);
+        } catch (Exception exception) {
+            throw new BaseException(FAILED_TO_POST_USER);
+        }
+
+        UserMusicPlay userMusicPlay = new UserMusicPlay(user.getUserIdx(), -1, -1, -1);
+        try {
+            userMusicPlay = userMusicPlayRepository.save(userMusicPlay);
         } catch (Exception exception) {
             throw new BaseException(FAILED_TO_POST_USER);
         }
