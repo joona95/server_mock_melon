@@ -29,12 +29,14 @@ import static com.waffle.demo.config.BaseResponseStatus.*;
 @Service
 public class MusicProvider {
     private final MusicRepository musicRepository;
+    private final Chart100Repository chart100Repository;
     private final GenreRepository genreRepository;
     private final JwtService jwtService;
 
     @Autowired
-    public MusicProvider(MusicRepository musicRepository, GenreRepository genreRepository, JwtService jwtService){
+    public MusicProvider(MusicRepository musicRepository, Chart100Repository chart100Repository, GenreRepository genreRepository, JwtService jwtService){
         this.musicRepository = musicRepository;
+        this.chart100Repository = chart100Repository;
         this.genreRepository = genreRepository;
         this.jwtService = jwtService;
     }
@@ -227,4 +229,50 @@ public class MusicProvider {
 
     }
 
+
+    /**
+     * 차트 순위 조회
+     * @return List<GetChart100Res>
+     * @throws BaseException
+     */
+
+    public List<GetChart100Res> retrieveChart100() throws BaseException{
+
+        List<Chart100> chart100s = new ArrayList<>();
+        try{
+            chart100s.addAll(chart100Repository.findByIsDeleted("N"));
+        }catch (Exception e){
+            throw new BaseException(FAILED_TO_GET_CHART100);
+        }
+
+
+        List<GetChart100Res> getChart100ResList = new ArrayList<>();
+        for(int i=0;i<chart100s.size();i++){
+            Music music = chart100s.get(i).getMusic();
+            Integer musicIdx = music.getMusicIdx();
+            String musicTitle = music.getMusicTitle();
+            String musicUrl = music.getMusicUrl();
+
+            Integer albumIdx = music.getAlbum().getAlbumIdx();
+            String albumImgUrl = music.getAlbum().getAlbumImgUrl();
+
+
+            //음악 주인인 가수들 찾아서 RES
+            List<Integer> isSingersIdx=new ArrayList<>();
+            List<String> isSingersName =new ArrayList<>();
+            for(int j=0;j<music.getSingers().size();j++){
+                if(music.getSingers().get(j).getIsSinger().equals("Y")&&music.getSingers().get(j).getIsDeleted().equals("N")) {
+                    Singer singer = music.getSingers().get(j).getSinger();
+                    isSingersIdx.add(singer.getSingerIdx());
+                    isSingersName.add(singer.getSingerName());
+                }
+            }
+
+            Integer rank = chart100s.get(i).getRank();
+
+            getChart100ResList.add(new GetChart100Res(musicIdx, musicTitle, musicUrl, albumIdx, albumImgUrl, isSingersIdx, isSingersName, rank));
+        }
+
+        return getChart100ResList;
+    }
 }

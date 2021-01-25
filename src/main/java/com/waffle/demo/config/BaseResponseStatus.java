@@ -67,7 +67,7 @@ public enum BaseResponseStatus {
     SUCCESS_POST_CURRENTPLAYLIST(true, 1221, "현재 재생 목록 생성에 성공하였습니다."),
     SUCCESS_PATCH_CURRENTPLAYLIST(true, 1222, "현재 재생 목록 수정에 성공하였습니다."),
     SUCCESS_DELETE_CURRENTPLAYLIST(true, 1223, "현재 재생 목록 삭제에 성공하였습니다."),
-    SUCCESS_GET_CHART100(true, 1230, "일간 차트 100 조회에 성공하였습니다."),
+    SUCCESS_READ_CHART100(true, 1230, "일간 차트 100 조회에 성공하였습니다."),
     SUCCESS_POST_CHART100(true, 1231, "일간 차트 100 생성에 성공하였습니다."),
 
     // 2000 : Request 오류

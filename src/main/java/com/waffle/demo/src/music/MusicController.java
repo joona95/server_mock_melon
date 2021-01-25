@@ -323,4 +323,21 @@ public class MusicController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+
+    /**
+     * 차트 순위 조회 API
+     * [GET] /musics/chart100
+     * @return BaseResponse<GetChart100Res>
+     */
+    @ResponseBody
+    @GetMapping("/chart100")
+    public BaseResponse<List<GetChart100Res>> getChart100(){
+        try{
+            List<GetChart100Res> getChart100ResList = musicProvider.retrieveChart100();
+            return new BaseResponse<>(SUCCESS_READ_CHART100, getChart100ResList);
+        } catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }
