@@ -5,10 +5,14 @@ import com.waffle.demo.src.music.models.Music;
 import com.waffle.demo.src.album.models.Album;
 import com.waffle.demo.src.singer.models.Singer;
 import com.waffle.demo.src.user.models.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository // => JPA => Hibernate => ORM => Database 객체지향으로 접근하게 해주는 도구이다
@@ -28,4 +32,7 @@ public interface MusicRepository extends CrudRepository<Music, Integer> {
     Music findByMusicIdxAndMusicLikesUsers(Integer musicIdx, User user);
 
     List<Music> findByGenres(Genre genre);
+
+    @Query("SELECT m from Music m LEFT OUTER JOIN m.currentPlayMusics cpm ON cpm.createdAt > :yesterday GROUP BY m.musicIdx ORDER BY count(cpm) DESC")
+    List<Music> findMusicsByCurrentPlayMusicCnt(@Param("yesterday") Timestamp yesterday, Pageable pageable);
 }

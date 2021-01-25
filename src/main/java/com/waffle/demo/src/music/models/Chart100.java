@@ -27,12 +27,15 @@ public class Chart100 {
     @JoinColumn(name = "musicIdx", nullable = false)
     private Music music;
 
-    @Column(name = "rank", nullable = false)
+    @Column(name = "chartRank", nullable = false)
     private Integer rank;
 
     @CreationTimestamp
     @Column(name = "createAt", nullable = false, updatable = false)
     private Timestamp createdAt;
+
+    @Column(name="isDeleted", nullable = false, length=1)
+    private String isDeleted = "N";
 
     public Chart100 (Music music, Integer rank){
         this.music = music;

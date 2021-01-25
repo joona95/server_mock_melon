@@ -485,6 +485,7 @@ public class UserService {
      * @return void
      * @throws BaseException
      */
+    @Transactional(rollbackFor = {Exception.class})
     public void createCurrentPlayMusic(PostCurrentPlayMusicReq postCurrentPlayMusicReq) throws BaseException {
         Integer userIdx = jwtService.getUserIdx();
         User user = userProvider.retrieveUserByUserIdx(userIdx);

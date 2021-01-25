@@ -17,10 +17,12 @@ import com.waffle.demo.src.user.UserProvider;
 import com.waffle.demo.src.user.models.User;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -40,10 +42,12 @@ public class MusicService {
     private final SingerProvider singerProvider;
     private final GenreProvider genreProvider;
     private final JwtService jwtService;
+    private final Chart100Repository chart100Repository;
 
     @Autowired
-    public MusicService(MusicRepository musicRepository, AlbumRepository albumRepository, MusicSingerRepository musicSingerRepository, SingerRepository singerRepository, UserProvider userProvider, MusicProvider musicProvider, AlbumProvider albumProvider, SingerProvider singerProvider, GenreProvider genreProvider, JwtService jwtService){
+    public MusicService(MusicRepository musicRepository, Chart100Repository chart100Repository, AlbumRepository albumRepository, MusicSingerRepository musicSingerRepository, SingerRepository singerRepository, UserProvider userProvider, MusicProvider musicProvider, AlbumProvider albumProvider, SingerProvider singerProvider, GenreProvider genreProvider, JwtService jwtService){
         this.musicRepository = musicRepository;
+        this.chart100Repository = chart100Repository;
         this.albumRepository = albumRepository;
         this.musicSingerRepository = musicSingerRepository;
         this.singerRepository = singerRepository;
@@ -256,4 +260,48 @@ public class MusicService {
         return createMusicLike;
     }
 
+
+    /**
+     * 차트 순위 생성
+     * @throws BaseException
+     * @return void
+     */
+    @Transactional(rollbackFor = {Exception.class})
+    public void createChart100() throws BaseException {
+
+        List<Chart100> lastChart = new ArrayList<>();
+        try{
+            lastChart.addAll(chart100Repository.findByIsDeleted("N"));
+        }catch (Exception e){
+            throw new BaseException(FAILED_TO_GET_CHART100);
+        }
+
+        for(int i=0;i< lastChart.size();i++){
+            Chart100 chart = lastChart.get(i);
+            chart.setIsDeleted("Y");
+            try {
+                chart100Repository.save(chart);
+            }catch(Exception exception) {
+                throw new BaseException(FAILED_TO_POST_CHART100);
+            }
+        }
+
+        Date date = new Date();
+        date = new Date(date.getTime()-(1000*60*60*24));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+        String dDate = sdf.format(date);
+        Timestamp yesterday = Timestamp.valueOf(dDate);
+        List<Music> musics = musicRepository.findMusicsByCurrentPlayMusicCnt(yesterday, PageRequest.of(0, 100));
+
+        for(int i=0;i<musics.size();i++) {
+            Chart100 chart100 = new Chart100(musics.get(i), i+1);
+            try {
+                chart100Repository.save(chart100);
+            } catch (Exception exception) {
+                throw new BaseException(FAILED_TO_POST_CHART100);
+            }
+        }
+
+    }
 }

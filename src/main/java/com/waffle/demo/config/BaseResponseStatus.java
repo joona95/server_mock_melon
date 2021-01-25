@@ -67,6 +67,8 @@ public enum BaseResponseStatus {
     SUCCESS_POST_CURRENTPLAYLIST(true, 1221, "현재 재생 목록 생성에 성공하였습니다."),
     SUCCESS_PATCH_CURRENTPLAYLIST(true, 1222, "현재 재생 목록 수정에 성공하였습니다."),
     SUCCESS_DELETE_CURRENTPLAYLIST(true, 1223, "현재 재생 목록 삭제에 성공하였습니다."),
+    SUCCESS_GET_CHART100(true, 1230, "일간 차트 100 조회에 성공하였습니다."),
+    SUCCESS_POST_CHART100(true, 1231, "일간 차트 100 생성에 성공하였습니다."),
 
     // 2000 : Request 오류
     REQUEST_ERROR(false, 2000, "입력값을 확인해주세요."),
@@ -214,6 +216,8 @@ public enum BaseResponseStatus {
     FAILED_TO_GET_SINGERMUSIC(false, 3242, "가수 곡 목록 조회에 실패하였습니다."),
     FAILED_TO_GET_USERMUSICPLAY(false, 3252, "유저 음악 플레이 설정 조회에 실패하였습니다."),
     FAILED_TO_POST_USERMUSICPLAY(false, 3253, "유저 음악 플레이 설정 저장에 실패하였습니다."),
+    FAILED_TO_GET_CHART100(false, 3262, "일간 차트 100 조회에 실패하였습니다."),
+    FAILED_TO_POST_CHART100(false, 3263, "일간 차트 100 생성에 실패하였습니다."),
 
     // 4000 : Database 오류
     SERVER_ERROR(false, 4000, "서버와의 통신에 실패하였습니다."),

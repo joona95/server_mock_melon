@@ -7,6 +7,8 @@ import com.waffle.demo.src.music.models.*;
 import com.waffle.demo.src.music.MusicProvider;
 import com.waffle.demo.src.music.MusicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -14,6 +16,7 @@ import java.util.List;
 
 import static com.waffle.demo.config.BaseResponseStatus.*;
 
+@EnableScheduling
 @RestController
 @RequestMapping("/musics")
 public class MusicController {
@@ -300,6 +303,23 @@ public class MusicController {
             GetMusicChannelRes getMusicChannelRes = musicProvider.retrieveMusicChannel(musicIdx);
             return new BaseResponse<>(SUCCESS_READ_MUSICCHANNEL, getMusicChannelRes);
         } catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 차트 순위 생성 API
+     * [POST] /musics/chart100
+     * @return BaseResponse<PostChart100Res>
+     */
+    @Scheduled(cron = "0 0 12 * * *")
+    @ResponseBody
+    @PostMapping("/chart100")
+    public BaseResponse<Void> postChart100(){
+        try {
+            musicService.createChart100();
+            return new BaseResponse<>(SUCCESS_POST_CHART100);
+        } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
     }
