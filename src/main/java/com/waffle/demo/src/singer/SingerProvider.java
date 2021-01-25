@@ -365,16 +365,46 @@ public class SingerProvider {
      * @throws BaseException
      */
 
-    public List<GetSingerMusicRes> retrieveSingerMusicList(Integer singerIdx, String typePar, String orderPar) throws BaseException{
+    public List<GetSingerMusicRes> retrieveSingerMusicList(Integer singerIdx, Integer typePar, Integer orderPar) throws BaseException{
         Singer singer = retrieveSingerBySingerIdx(singerIdx);
 
         List<Music> musicList= new ArrayList<>();
         List<MusicSinger> musicSingers;
-        if(typePar==null) {
-            musicSingers = singer.getMusicSingers();
+
+        String type="";
+        if(typePar!=null&&typePar==1){//참여
+            type = "참여";
         }
-        else{
-            musicSingers = musicSingerRepository.findByTypeAndSingerAndIsDeleted(typePar, singer, "N");
+        else if(typePar!=null && typePar==2){ //작사/작곡
+            type = "작사/작곡";
+        }
+
+        try {
+            if (orderPar != null && orderPar == 1) { //인기순
+                if(typePar!=null && (typePar==1 || typePar==2)) {
+                    musicSingers = musicSingerRepository.findByTypeAndSingerAndIsDeletedOrderByMusicLikeCnt(singer, type);
+                }
+                else{
+                    musicSingers = musicSingerRepository.findBySingerAndIsSingerAndIsDeletedOrderByMusicLikeCnt(singer);
+                }
+            } else if (orderPar != null && orderPar == 2) {//가나다순
+                if(typePar!=null && (typePar==1 || typePar==2)) {
+                    musicSingers = musicSingerRepository.findByTypeAndSingerAndIsDeletedOrderByMusicTitle(singer, type);
+                }
+                else{
+                    musicSingers = musicSingerRepository.findBySingerAndIsSingerAndIsDeletedOrderByMusicTitle(singer);
+                }
+            } else { //최신순
+                if(typePar!=null && (typePar==1 || typePar==2)) {
+                    musicSingers = musicSingerRepository.findByTypeAndSingerAndIsDeletedOrderByMusicCreatedAt(singer, type);
+                }
+                else{
+                    musicSingers = musicSingerRepository.findBySingerAndIsSingerAndIsDeletedOrderByMusicCreatedAt(singer);
+                }
+            }
+        }
+        catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_MUSICSINGER);
         }
 
         if(musicSingers!=null) {
@@ -460,22 +490,56 @@ public class SingerProvider {
      * @throws BaseException
      */
 
-    public List<GetSingerAlbumRes> retrieveSingerAlbumList(Integer singerIdx, String typePar, String orderPar) throws BaseException{
+    public List<GetSingerAlbumRes> retrieveSingerAlbumList(Integer singerIdx, Integer typePar, Integer orderPar) throws BaseException{
         Singer singer = retrieveSingerBySingerIdx(singerIdx);
 
         List<Album> albumList= new ArrayList<>();
         List<AlbumSinger> albumSingers;
-        if(typePar==null) {
-            albumSingers = singer.getAlbumSingers();
+        String type="";
+        if(typePar!=null&&typePar==1){//정규/싱글
+            type = "정규/싱글";
         }
-        else{
-            albumSingers = albumSingerRepository.findByTypeAndSingerAndIsDeleted(typePar, singer, "N");
+        else if(typePar!=null && typePar==2){ //OST/참여
+            type = "OST/참여";
         }
 
-        for (int i = 0; i < albumSingers.size(); i++) {
-            if(albumSingers.get(i).getIsDeleted().equals("N")&&albumSingers.get(i).getAlbum().getIsDeleted().equals("N")) {
-                albumList.add(albumSingers.get(i).getAlbum());
+        try {
+            if (orderPar != null && orderPar == 1) { //인기순
+                if(typePar!=null && (typePar==1 || typePar==2)){
+                    albumSingers = albumSingerRepository.findByTypeAndSingerAndIsDeletedOrderByAlbumLikeCnt(singer, type);
+                }
+                else{
+                    albumSingers = albumSingerRepository.findBySingerAndIsDeletedOrderByAlbumLikeCnt(singer);
+                }
+            } else if (orderPar != null && orderPar == 2) {//가나다순
+                if(typePar!=null && (typePar==1 || typePar==2)){
+                    albumSingers = albumSingerRepository.findByTypeAndSingerAndIsDeletedOrderByAlbumTitle(singer, type);
+                }
+                else{
+                    albumSingers = albumSingerRepository.findBySingerAndIsDeletedOrderByAlbumTitle(singer);
+                }
+            } else { //최신순
+                if(typePar!=null && (typePar==1 || typePar==2)){
+                    albumSingers = albumSingerRepository.findByTypeAndSingerAndIsDeletedOrderByAlbumCreatedAt(singer, type);
+                }
+                else{
+                    albumSingers = albumSingerRepository.findBySingerAndIsDeletedOrderByAlbumCreatedAt(singer);
+                }
             }
+        }
+        catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_ALBUMSINGER);
+        }
+
+        if(albumSingers!=null) {
+            for (int i = 0; i < albumSingers.size(); i++) {
+                if (albumSingers.get(i).getIsDeleted().equals("N") && albumSingers.get(i).getAlbum().getIsDeleted().equals("N")) {
+                    albumList.add(albumSingers.get(i).getAlbum());
+                }
+            }
+        }
+        else{
+            throw new BaseException(FAILED_TO_GET_ALBUM);
         }
 
 /*

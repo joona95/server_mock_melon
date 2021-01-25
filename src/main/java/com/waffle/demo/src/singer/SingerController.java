@@ -317,7 +317,7 @@ public class SingerController {
 
     @ResponseBody
     @GetMapping("/{singerIdx}/musics")
-    public BaseResponse<List<GetSingerMusicRes>> getSingerMusics(@PathVariable Integer singerIdx, @RequestParam(value="type",required = false) String typePar,@RequestParam(value="type",required = false) String orderPar) {
+    public BaseResponse<List<GetSingerMusicRes>> getSingerMusics(@PathVariable Integer singerIdx, @RequestParam(value="type",required = false) Integer typePar,@RequestParam(value="order",required = false) Integer orderPar) {
         if (singerIdx == null || singerIdx <= 0) {
             return new BaseResponse<>(EMPTY_SINGERIDX);
         }
@@ -338,7 +338,7 @@ public class SingerController {
 
     @ResponseBody
     @GetMapping("/{singerIdx}/albums")
-    public BaseResponse<List<GetSingerAlbumRes>> getSingerAlbums(@PathVariable Integer singerIdx,@RequestParam(value="type",required = false) String typePar,@RequestParam(value="type",required = false) String orderPar) {
+    public BaseResponse<List<GetSingerAlbumRes>> getSingerAlbums(@PathVariable Integer singerIdx,@RequestParam(value="type",required = false) Integer typePar,@RequestParam(value="order",required = false) Integer orderPar) {
         if (singerIdx == null || singerIdx <= 0) {
             return new BaseResponse<>(EMPTY_SINGERIDX);
         }
