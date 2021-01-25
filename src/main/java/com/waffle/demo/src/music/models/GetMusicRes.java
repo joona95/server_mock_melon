@@ -16,9 +16,15 @@ public class GetMusicRes {
     private final String writing;
     private final String composing;
     private final String arranging;
-    private final String musicLength;
-    private final String musicUrl;
-    private final String lyric;
     private final List<Integer> genresIdx;
     private final List<String> genres;
+    private final Integer yesterdayChartRank;
+    private final Integer bestChartRank;
+    private final String bestChartRankDate;
+    private final Integer frirstRankCnt;
+    private final Integer yesterdayUserPlayCnt;
+    private final String yesterdayMaleUserPlayPercent;
+    private final String yesterdayFemaleUserPlayPercent;
+    private final String userFirstPlayDate;
+    private final Integer userPlayCnt;
 }

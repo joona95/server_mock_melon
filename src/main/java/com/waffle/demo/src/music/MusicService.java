@@ -292,7 +292,12 @@ public class MusicService {
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         String dDate = sdf.format(date);
         Timestamp yesterday = Timestamp.valueOf(dDate);
-        List<Music> musics = musicRepository.findMusicsByCurrentPlayMusicCnt(yesterday, PageRequest.of(0, 100));
+        List<Music> musics = new ArrayList<>();
+        try{
+            musics.addAll(musicRepository.findMusicsByCurrentPlayMusicCnt(yesterday, PageRequest.of(0, 100)));
+        }catch (Exception e){
+            throw new BaseException(FAILED_TO_GET_MUSIC);
+        }
 
         for(int i=0;i<musics.size();i++) {
             Chart100 chart100 = new Chart100(musics.get(i), i+1);

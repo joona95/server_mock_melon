@@ -50,6 +50,7 @@ public class MusicController {
      * [GET] /musics/:musicIdx
      * @PathVariable musicIdx
      * @return BaseResponse<GetAlbumRes>
+     */
 
     @ResponseBody
     @GetMapping("/{musicIdx}")
@@ -64,7 +65,7 @@ public class MusicController {
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
-    }*/
+    }
 
     /**
      * 음악 등록 API
