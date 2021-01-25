@@ -2,6 +2,7 @@ package com.waffle.demo.src.music.models;
 
 import com.waffle.demo.src.genre.models.Genre;
 import com.waffle.demo.src.singer.models.Singer;
+import com.waffle.demo.src.user.models.CurrentPlayMusic;
 import com.waffle.demo.src.user.models.CurrentPlaylistMusic;
 import com.waffle.demo.src.user.models.User;
 import lombok.*;
@@ -82,6 +83,9 @@ public class Music extends BaseEntity{
             joinColumns = @JoinColumn(name="musicIdx"),
             inverseJoinColumns = @JoinColumn(name = "genreIdx"))
     private List<Genre> genres = new ArrayList<Genre>();
+
+    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
+    private List<CurrentPlayMusic> currentPlayMusics = new ArrayList<CurrentPlayMusic>();
 
 
     public Music(Album album, String musicTitle, String isTitle, String writing, String composing, String arranging, Time musicLength, String musicUrl, String lyric){

@@ -301,7 +301,7 @@ public class UserProvider {
 
         UserMusicPlay userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
         if(userMusicPlay==null)
-            throw new BaseException(NOT_FOUND_CURRENTPLAYMUSIC);
+            throw new BaseException(FAILED_TO_GET_USERMUSICPLAY);
 
         Integer currentPlaylistMusicIdx = userMusicPlay.getCurrentPosition();
         String isShuffled = userMusicPlay.getIsShuffled();

@@ -62,6 +62,9 @@ public class User extends BaseEntity {
     //private UserMusicPlay userMusicPlay;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<CurrentPlayMusic> currentPlayMusics = new ArrayList<CurrentPlayMusic>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserVoucher> userVouchers = new ArrayList<UserVoucher>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

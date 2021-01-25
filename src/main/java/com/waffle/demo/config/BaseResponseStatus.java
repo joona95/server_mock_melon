@@ -212,6 +212,8 @@ public enum BaseResponseStatus {
     FAILED_TO_PATCH_CURRENTPLAYLIST(false, 3234, "현재 재생 목록 수정에 실패하였습니다."),
     FAILED_TO_DELETE_CURRENTPLAYLIST(false, 3235, "현재 재생 목록 삭제에 실패하였습니다."),
     FAILED_TO_GET_SINGERMUSIC(false, 3242, "가수 곡 목록 조회에 실패하였습니다."),
+    FAILED_TO_GET_USERMUSICPLAY(false, 3252, "유저 음악 플레이 설정 조회에 실패하였습니다."),
+    FAILED_TO_POST_USERMUSICPLAY(false, 3253, "유저 음악 플레이 설정 저장에 실패하였습니다."),
 
     // 4000 : Database 오류
     SERVER_ERROR(false, 4000, "서버와의 통신에 실패하였습니다."),

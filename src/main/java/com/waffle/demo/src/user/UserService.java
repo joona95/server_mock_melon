@@ -27,6 +27,7 @@ import static com.waffle.demo.config.BaseResponseStatus.*;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMusicPlayRepository userMusicPlayRepository;
+    private final CurrentPlayMusicRepository currentPlayMusicRepository;
     private final CurrentPlaylistMusicRepository currentPlaylistMusicRepository;
     private final UserProvider userProvider;
     private final MusicProvider musicProvider;
@@ -35,9 +36,10 @@ public class UserService {
     private final JwtService jwtService;
 
     @Autowired
-    public UserService(UserRepository userRepository,MusicProvider musicProvider, UserMusicPlayRepository userMusicPlayRepository, CurrentPlaylistMusicRepository currentPlaylistMusicRepository, UserProvider userProvider, VoucherProvider voucherProvider, UserVoucherRepository userVoucherRepository, JwtService jwtService) {
+    public UserService(UserRepository userRepository,MusicProvider musicProvider, CurrentPlayMusicRepository currentPlayMusicRepository, UserMusicPlayRepository userMusicPlayRepository, CurrentPlaylistMusicRepository currentPlaylistMusicRepository, UserProvider userProvider, VoucherProvider voucherProvider, UserVoucherRepository userVoucherRepository, JwtService jwtService) {
         this.userRepository = userRepository;
         this.userMusicPlayRepository = userMusicPlayRepository;
+        this.currentPlayMusicRepository = currentPlayMusicRepository;
         this.currentPlaylistMusicRepository = currentPlaylistMusicRepository;
         this.userProvider = userProvider;
         this.musicProvider = musicProvider;
@@ -487,40 +489,68 @@ public class UserService {
         Integer userIdx = jwtService.getUserIdx();
         User user = userProvider.retrieveUserByUserIdx(userIdx);
 
-        UserMusicPlay userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
-
         Integer currentPlaylistMusicIdx = postCurrentPlayMusicReq.getCurrentPlaylistMusicIdx();
 
-        List<CurrentPlaylistMusic> currentPlaylistMusicList = currentPlaylistMusicRepository.findByUserAndIsDeletedOrderByOrder(user, "N");
-        CurrentPlaylistMusic currentPlaylistMusic = currentPlaylistMusicRepository.findById(currentPlaylistMusicIdx).orElse(null);
+        CurrentPlaylistMusic currentPlaylistMusic;
+        try {
+            currentPlaylistMusic = currentPlaylistMusicRepository.findById(currentPlaylistMusicIdx).orElse(null);
+        }
+        catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
+        }
+
         if(currentPlaylistMusic==null)
             throw new BaseException(FAILED_TO_POST_CURRENTPLAYMUSIC);
 
         if(currentPlaylistMusic.getUser().getUserIdx()!=userIdx)
             throw new BaseException(FAILED_TO_ACCESS);
 
-        Integer startPosition=0;
-        Integer endPosition=0;
-        if(currentPlaylistMusicList!=null && currentPlaylistMusicList.size()>0){
-            startPosition = currentPlaylistMusicList.get(0).getCurrentPlaylistMusicIdx();
-            Integer size = currentPlaylistMusicList.size();
-            endPosition = currentPlaylistMusicList.get(size-1).getCurrentPlaylistMusicIdx();
+
+        //제일 최근 재생 곡 기록 삭제
+        CurrentPlayMusic lastPlayMusic;
+        try{
+            lastPlayMusic = currentPlayMusicRepository.findFirstByUserAndIsDeletedOrderByCreatedAtDesc(user, "N");
+        }
+        catch (Exception ignored) {
+            throw new BaseException(FAILED_TO_GET_CURRENTPLAYMUSIC);
         }
 
-        if(userMusicPlay==null){
-            userMusicPlay = new UserMusicPlay(userIdx,startPosition,endPosition,currentPlaylistMusicIdx);
-
+        if(lastPlayMusic!=null) {
+            lastPlayMusic.setIsDeleted("Y");
+            try {
+                currentPlayMusicRepository.save(lastPlayMusic);
+            } catch (Exception ignored) {
+                throw new BaseException(FAILED_TO_POST_CURRENTPLAYMUSIC);
+            }
         }
-        else{
-            userMusicPlay.setStartPosition(startPosition);
-            userMusicPlay.setLastPosition(endPosition);
+
+        //현재 재생 곡 기록
+        CurrentPlayMusic currentPlayMusic = new CurrentPlayMusic(user, currentPlaylistMusic.getMusic());
+        try {
+            currentPlayMusicRepository.save(currentPlayMusic);
+        } catch (Exception ignored) {
+            throw new BaseException(FAILED_TO_POST_CURRENTPLAYMUSIC);
+        }
+
+        //userMusicPlay 설정에서 현재 재생곡 내용 수정
+        UserMusicPlay userMusicPlay;
+        try {
+            userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
+        }
+        catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_USERMUSICPLAY);
+        }
+
+        if(userMusicPlay.getCurrentPosition()!=currentPlaylistMusicIdx){
             userMusicPlay.setCurrentPosition(currentPlaylistMusicIdx);
+            userMusicPlay.setCurrentMusicGroup("Music");
         }
 
         try {
             userMusicPlayRepository.save(userMusicPlay);
         } catch (Exception ignored) {
-            throw new BaseException(FAILED_TO_POST_CURRENTPLAYMUSIC);
+            throw new BaseException(FAILED_TO_POST_USERMUSICPLAY);
         }
+
     }
 }
