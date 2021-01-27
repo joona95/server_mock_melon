@@ -65,11 +65,11 @@ public class UserProvider {
                 //gradePar = gradePar.replaceAll("\"","");
                 userList = userRepository.findByIsDeleted("N");
             }
-            else if(gradePar==null&&(genderPar.equals("F") || genderPar.equals("M"))){
+            else if(gradePar==null && genderPar!=null){
                 // = genderPar.replaceAll("\"","");
                 userList = userRepository.findByGenderAndIsDeleted(genderPar, "N");
             }
-            else if(genderPar==null){
+            else if(genderPar==null && gradePar!=null){
                 //gradePar = gradePar.replaceAll("\"","");
                 userList = userRepository.findByGradeAndIsDeleted(gradePar, "N");
             }
