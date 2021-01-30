@@ -45,15 +45,15 @@ public class AlbumProvider {
      * @throws BaseException
      */
     public List<GetAlbumsRes> retrieveAlbumList(String genrePar) throws BaseException{
-        List<Album> albumList;
+        List<Album> albumList = new ArrayList<>();
         try{
             //genrePar = genrePar.replaceAll("\"", "");
             if(genrePar!=null){
                 Genre genre = genreRepository.findByGenreAndIsDeleted(genrePar, "N");
-                albumList = albumRepository.findByGenres(genre);
+                albumList.addAll(albumRepository.findByGenresAndIsDeleted(genre,"N"));
             }
             else {
-                albumList = albumRepository.findByIsDeleted("N");
+                albumList.addAll(albumRepository.findByIsDeleted("N"));
             }
         } catch (Exception ignored){
             throw new BaseException(FAILED_TO_GET_ALBUM);

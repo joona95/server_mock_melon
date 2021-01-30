@@ -80,7 +80,7 @@ public class SingerProvider {
         try{
             if(genrePar!=null){
                 Genre genre = genreRepository.findByGenreAndIsDeleted(genrePar, "N");
-                singerList = singerRepository.findByGenres(genre);
+                singerList = singerRepository.findByGenresAndIsDeleted(genre,"N");
             }
             else {
                 singerList = singerRepository.findByIsDeleted("N");
@@ -157,7 +157,12 @@ public class SingerProvider {
         }
 
         if(album!=null) {
-            Music music = musicRepository.findFirstByAlbumAndIsTitleAndIsDeleted(album, "Y", "N");
+            Music music = null;
+            for(int i=0;i<album.getMusics().size();i++){
+                if(album.getMusics().get(i).getIsTitle().equals("Y")&&album.getMusics().get(i).getIsDeleted().equals("N")){
+                    music = album.getMusics().get(i);
+                }
+            }
 
             if (music != null) {
                 debutMusicIdx = music.getMusicIdx();
@@ -216,9 +221,9 @@ public class SingerProvider {
 
         }
 
-        List<Singer> agencySingers;
+        List<Singer> agencySingers = new ArrayList<>();
         try {
-            agencySingers = singerRepository.findByAgencyAndIsDeleted(agency, "N");
+            agencySingers.addAll(singerRepository.findByAgencyAndIsDeleted(agency, "N"));
         } catch (Exception ignored) {
             throw new BaseException(FAILED_TO_GET_SINGER);
         }
@@ -303,14 +308,21 @@ public class SingerProvider {
         if(profileMusicIdx>0) {
             Music music = musicProvider.retrieveMusicByMusicIdx(profileMusicIdx);
 
-            MusicSinger musicSinger = musicSingerRepository.findByMusicAndSinger(music, singer);
+            MusicSinger musicSinger = null;
+            for(int i=0;i<music.getSingers().size();i++){
+                if(music.getSingers().get(i).getSinger().equals(singer)&&music.getSingers().get(i).getIsDeleted().equals("N")){
+                    musicSinger = music.getSingers().get(i);
+                }
+            }
             if(musicSinger==null){
                 throw new BaseException(FAILED_TO_GET_SINGERCHANNEL);
             }
 
             profileMusicTitle = music.getMusicTitle();
             for(int i=0;i<music.getSingers().size();i++){
-                profileMusicSingersName.add(music.getSingers().get(i).getSinger().getSingerName());
+                if(music.getSingers().get(i).getIsSinger().equals("Y")&&music.getSingers().get(i).getIsDeleted().equals("N")) {
+                    profileMusicSingersName.add(music.getSingers().get(i).getSinger().getSingerName());
+                }
             }
         }
 
@@ -319,7 +331,12 @@ public class SingerProvider {
 
         for(int i=0;i<user.getMusicLikes().size();i++){
             Music music = user.getMusicLikes().get(i);
-            MusicSinger musicSinger = musicSingerRepository.findByMusicAndSinger(music, singer);
+            MusicSinger musicSinger = null;
+            for(int j=0;j<music.getSingers().size();j++){
+                if(music.getSingers().get(j).getSinger().equals(singer)){
+                    musicSinger = music.getSingers().get(j);
+                }
+            }
 
             if(musicSinger!=null){
                 userMusicLikeCnt++;
@@ -327,17 +344,22 @@ public class SingerProvider {
         }
 
         List<CurrentPlaylistMusic> playMusics = new ArrayList<>();
-        try{
-            playMusics = currentPlaylistMusicRepository.findByUser(user);
-        }catch (Exception exception){
-            throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
+        for(int i=0;i<user.getCurrentPlaylistMusics().size();i++){
+            if(user.getCurrentPlaylistMusics().get(i).getIsDeleted().equals("N")){
+                playMusics.add(user.getCurrentPlaylistMusics().get(i));
+            }
         }
 
         Integer userMusicPlayCnt=0;
 
         for(int i=0;i<playMusics.size();i++){
             Music music = playMusics.get(i).getMusic();
-            MusicSinger musicSinger = musicSingerRepository.findByMusicAndSinger(music, singer);
+            MusicSinger musicSinger = null;
+            for(int j=0;j<music.getSingers().size();j++){
+                if(music.getSingers().get(j).getSinger().equals(singer)){
+                    musicSinger = music.getSingers().get(j);
+                }
+            }
 
             if(musicSinger!=null){
                 userMusicPlayCnt++;
@@ -619,7 +641,13 @@ public class SingerProvider {
 
         Singer singer = retrieveSingerBySingerIdx(singerIdx);
 
-        List<SingerComment> singerCommentList = singerCommentRepository.findByIsDeleted("N");
+        List<SingerComment> singerCommentList = new ArrayList<>();
+        for(int i=0;i<singer.getSingerComments().size();i++){
+            if(singer.getSingerComments().get(i).getIsDeleted().equals("N")){
+                singerCommentList.add(singer.getSingerComments().get(i));
+            }
+        }
+
         List<GetSingerCommentsRes> getSingerCommentResList = new ArrayList<>();
         if(singerCommentList==null)
             throw new BaseException(FAILED_TO_GET_SINGERCOMMENT);
@@ -742,12 +770,7 @@ public class SingerProvider {
             String musicTitle = "";
             List<String> musicSingersName = new ArrayList<>();
             if (musicIdx != null && musicIdx > 0) {
-                Music music;
-                try {
-                    music = musicProvider.retrieveMusicByMusicIdx(musicIdx);
-                } catch (BaseException exception) {
-                    throw new BaseException(FAILED_TO_GET_SINGERCOMMENT);
-                }
+                Music music = musicProvider.retrieveMusicByMusicIdx(musicIdx);
                 musicTitle = music.getMusicTitle();
                 for (int i = 0; i < music.getSingers().size(); i++) {
                     musicSingersName.add(music.getSingers().get(i).getSinger().getSingerName());

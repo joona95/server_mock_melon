@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.waffle.demo.config.BaseResponseStatus.*;
 
@@ -96,7 +93,7 @@ public class UserService {
         try {
             userMusicPlay = userMusicPlayRepository.save(userMusicPlay);
         } catch (Exception exception) {
-            throw new BaseException(FAILED_TO_POST_USER);
+            throw new BaseException(FAILED_TO_POST_USERMUSICPLAY);
         }
 
         // 4. JWT 생성
@@ -208,15 +205,20 @@ public class UserService {
 
         User user = userProvider.retrieveUserByUserIdx(jwtService.getUserIdx());
 
-        List<UserVoucher> userVouchers;
-        try {
-            userVouchers = userVoucherRepository.findByUserAndVoucherEnd(user, "N");
-        }catch (Exception exception) {
-            throw new BaseException(FAILED_TO_POST_USERVOUCHER);
+        List<UserVoucher> userVouchers = new ArrayList<>();
+        for(int i=0;i<user.getUserVouchers().size();i++){
+            if(user.getUserVouchers().get(i).getVoucherEnd().equals("N")){
+                userVouchers.add(user.getUserVouchers().get(i));
+            }
         }
 
         Integer voucherIdx = postUserVoucherReq.getVoucherIdx();
-        Voucher voucher = voucherProvider.retrieveVoucherByVoucherIdx(voucherIdx);
+        Voucher voucher;
+        try {
+            voucher = voucherProvider.retrieveVoucherByVoucherIdx(voucherIdx);
+        }catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_VOUCHER);
+        }
 
         //boolean find = false;
         for(int i=0;i<userVouchers.size();i++){
@@ -296,23 +298,29 @@ public class UserService {
         Integer userIdx = jwtService.getUserIdx();
         User user = userProvider.retrieveUserByUserIdx(userIdx);
 
+        UserMusicPlay userMusicPlay;
         try {
-            UserMusicPlay userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
+            userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
         }catch(Exception ignored) {
-            throw new BaseException(FAILED_TO_POST_CURRENTPLAYLIST);
+            throw new BaseException(FAILED_TO_POST_USERMUSICPLAY);
         }
 
         List<Integer> musicsIdx = postCurrentPlaylistReq.getMusicsIdx();
         Integer createType = postCurrentPlaylistReq.getCreateType();
 
-
-
-        List<CurrentPlaylistMusic> currentPlaylistMusics;
-        try {
-            currentPlaylistMusics = currentPlaylistMusicRepository.findByUserAndIsDeletedOrderByOrder(user, "N");
-        } catch (Exception ignored) {
-            throw new BaseException(FAILED_TO_POST_CURRENTPLAYLIST);
+        List<CurrentPlaylistMusic> currentPlaylistMusics=new ArrayList<>();
+        for(int i=0;i<user.getCurrentPlaylistMusics().size();i++){
+            if(user.getCurrentPlaylistMusics().get(i).getIsDeleted().equals("N")){
+                currentPlaylistMusics.add(user.getCurrentPlaylistMusics().get(i));
+            }
         }
+
+        Collections.sort(currentPlaylistMusics, new Comparator<CurrentPlaylistMusic>() {
+            @Override
+            public int compare(CurrentPlaylistMusic o1, CurrentPlaylistMusic o2) {
+                return o1.getOrder().compareTo(o2.getOrder());
+            }
+        });
 
 
         Integer startPosition = 0;
@@ -323,8 +331,6 @@ public class UserService {
             startPosition = currentPlaylistMusics.get(0).getCurrentPlaylistMusicIdx();
             endPosition = currentPlaylistMusics.get(currentPlaylistMusicCnt-1).getCurrentPlaylistMusicIdx();
         }
-
-        UserMusicPlay userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
 
         Integer order = 0;
         if(createType==1&&userMusicPlay!=null&&userMusicPlay.getCurrentPosition()!=null&&userMusicPlay.getCurrentPosition()>0){
@@ -415,7 +421,12 @@ public class UserService {
         List<Integer> musicsIdx = deleteCurrentPlaylistReq.getCurrentPlaylistMusicsIdx();
 
         for(int i=0;i<musicsIdx.size();i++){
-            CurrentPlaylistMusic currentPlaylistMusic = currentPlaylistMusicRepository.findById(musicsIdx.get(i)).orElse(null);
+            CurrentPlaylistMusic currentPlaylistMusic;
+            try {
+                currentPlaylistMusic = currentPlaylistMusicRepository.findById(musicsIdx.get(i)).orElse(null);
+            }catch (Exception ignored){
+                throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
+            }
 
             if(currentPlaylistMusic!=null&&currentPlaylistMusic.getIsDeleted().equals("N")){
                 if(currentPlaylistMusic.getUser().getUserIdx()!=user.getUserIdx())
@@ -448,14 +459,31 @@ public class UserService {
 
         List<Integer> musicsIdx = patchCurrentPlaylistReq.getCurrentPlaylistMusicsIdx();
 
-        List<CurrentPlaylistMusic> currentPlaylistMusicList = currentPlaylistMusicRepository.findByUserAndIsDeletedOrderByOrder(user, "N");
+        List<CurrentPlaylistMusic> currentPlaylistMusicList=new ArrayList<>();
+        for(int i=0;i<user.getCurrentPlaylistMusics().size();i++){
+            if(user.getCurrentPlaylistMusics().get(i).getIsDeleted().equals("N")){
+                currentPlaylistMusicList.add(user.getCurrentPlaylistMusics().get(i));
+            }
+        }
+
+        Collections.sort(currentPlaylistMusicList, new Comparator<CurrentPlaylistMusic>() {
+            @Override
+            public int compare(CurrentPlaylistMusic o1, CurrentPlaylistMusic o2) {
+                return o1.getOrder().compareTo(o2.getOrder());
+            }
+        });
 
         if(musicsIdx.size()!=currentPlaylistMusicList.size()){
             throw new BaseException(DO_NOT_MATCH_MUSICCNT);
         }
 
         for(int i=0;i<musicsIdx.size();i++) {
-            CurrentPlaylistMusic currentPlaylistMusic = currentPlaylistMusicRepository.findById(musicsIdx.get(i)).orElse(null);
+            CurrentPlaylistMusic currentPlaylistMusic;
+            try {
+                currentPlaylistMusic = currentPlaylistMusicRepository.findById(musicsIdx.get(i)).orElse(null);
+            }catch (Exception ignored){
+                throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
+            }
 
             if(currentPlaylistMusic==null||currentPlaylistMusic.getIsDeleted().equals("Y")){
                 throw new BaseException(FAILED_TO_PATCH_CURRENTPLAYLIST);

@@ -57,7 +57,7 @@ public class MusicProvider {
         try{
             if(genrePar!=null){
                 Genre genre = genreRepository.findByGenreAndIsDeleted(genrePar, "N");
-                musicList = musicRepository.findByGenres(genre);
+                musicList = musicRepository.findByGenresAndIsDeleted(genre,"N");
             }
             else {
                 musicList = musicRepository.findByIsDeleted("N");
@@ -150,7 +150,13 @@ public class MusicProvider {
 
         Integer yesterdayChartRank = -1;
         try{
-            Chart100 yesterdayChart = chart100Repository.findByMusicAndIsDeleted(music, "N");
+            Chart100 yesterdayChart=null;
+            for(int i=0;i<music.getChartRecord().size();i++){
+                if(music.getChartRecord().get(i).getIsDeleted().equals("N")){
+                    yesterdayChart = music.getChartRecord().get(i);
+                }
+            }
+
             if(yesterdayChart!=null){
                 yesterdayChartRank = yesterdayChart.getRank();
             }

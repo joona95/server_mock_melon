@@ -24,5 +24,5 @@ public interface AlbumRepository extends CrudRepository<Album, Integer>{
 
     Album findByAlbumIdxAndAlbumLikesUsers(Integer albumIdx, User user);
 
-    List<Album> findByGenres(Genre genre);
+    List<Album> findByGenresAndIsDeleted(Genre genre, String isDeleted);
 }

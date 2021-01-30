@@ -166,7 +166,13 @@ public class AlbumService {
 
         for(int i=0;i<singersIdx.size();i++){
             Singer singer = singerProvider.retrieveSingerBySingerIdx(singersIdx.get(i));
-            AlbumSinger albumSinger= albumSingerRepository.findByAlbumAndSinger(album, singer);
+            AlbumSinger albumSinger=null;
+            for(int j=0;j<album.getSingers().size();j++){
+                if(album.getSingers().get(j).getSinger().equals(singer)){
+                    albumSinger = album.getSingers().get(j);
+                }
+            }
+
             if(albumSinger== null) {
                 albumSinger = new AlbumSinger(album, singer, types.get(i), isSingers.get(i));
             }
@@ -220,9 +226,15 @@ public class AlbumService {
         User user = userProvider.retrieveUserByUserIdx(jwtService.getUserIdx());
         Album album = albumProvider.retrieveAlbumByAlbumIdx(albumIdx);
 
-        Album albumLikeUser = albumRepository.findByAlbumIdxAndAlbumLikesUsers(albumIdx, user);
+        boolean find=false;
+        for(int i=0;i<album.getAlbumLikesUsers().size();i++){
+            if(user.getAlbumLikes().get(i).equals(album)){
+                find=true;
+                break;
+            }
+        }
 
-        if(albumLikeUser==null){
+        if(find==false){
             user.getAlbumLikes().add(album);
             album.getAlbumLikesUsers().add(user);
         }
@@ -256,7 +268,13 @@ public class AlbumService {
         User user = userProvider.retrieveUserByUserIdx(jwtService.getUserIdx());
         Album album = albumProvider.retrieveAlbumByAlbumIdx(albumIdx);
 
-        AlbumRate albumRate = albumRateRepository.findByAlbumAndUser(album, user);
+        AlbumRate albumRate = null;
+        for(int i=0;i<album.getAlbumRates().size();i++){
+            if(album.getAlbumRates().get(i).getUser().equals(user)){
+                albumRate = album.getAlbumRates().get(i);
+            }
+        }
+
         if(albumRate!=null){
             throw new BaseException(DUPLICATED_ALBUMRATE);
         }

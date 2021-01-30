@@ -20,7 +20,7 @@ public interface SingerRepository extends CrudRepository<Singer, Integer> {
 
     Singer findBySingerIdxAndSingerLikesUsers(Integer singerIdx, User user);
 
-    List<Singer> findByGenres(Genre genre);
+    List<Singer> findByGenresAndIsDeleted(Genre genre, String isDeleted);
 
     //List<Singer> findByMusics(Music music);
 

@@ -84,9 +84,9 @@ public class SingerService {
         if(profileMusicIdx!=null&&profileMusicIdx>0) {
             Music music = musicProvider.retrieveMusicByMusicIdx(profileMusicIdx);
             profileMusicTitle = music.getMusicTitle();
-            List<MusicSinger> musicSingers = musicSingerRepository.findByMusicAndIsSinger(music, "Y");
-            for(int i=0;i<musicSingers.size();i++){
-                profileMusicSingersName.add(musicSingers.get(i).getSinger().getSingerName());
+            for(int i=0;i<music.getSingers().size();i++){
+                if(music.getSingers().get(i).getIsSinger().equals("Y")&&music.getSingers().get(i).getIsDeleted().equals("N"))
+                profileMusicSingersName.add(music.getSingers().get(i).getSinger().getSingerName());
             }
 
         }
@@ -165,7 +165,12 @@ public class SingerService {
         singer.setChannelName(patchSingerReq.getChannelName());
 
         Music music = musicProvider.retrieveMusicByMusicIdx(patchSingerReq.getProfileMusicIdx());
-        MusicSinger musicSinger = musicSingerRepository.findByMusicAndSinger(music, singer);
+        MusicSinger musicSinger = null;
+        for(int i=0;i<music.getSingers().size();i++){
+            if(music.getSingers().get(i).getSinger().equals(singer)){
+                musicSinger = music.getSingers().get(i);
+            }
+        }
         if(musicSinger==null){
             throw new BaseException(FAILED_TO_PATCH_SINGER);
         }
@@ -280,8 +285,15 @@ public class SingerService {
         User user = userProvider.retrieveUserByUserIdx(jwtService.getUserIdx());
         Singer singer = singerProvider.retrieveSingerBySingerIdx(singerIdx);
 
-        Singer singerLikeUser = singerRepository.findBySingerIdxAndSingerLikesUsers(singerIdx, user);
-        if(singerLikeUser==null){
+        boolean find = false;
+        for(int i=0;i<user.getSingerLikes().size();i++){
+            if(user.getSingerLikes().get(i).equals(singer)){
+                find=true;
+                break;
+            }
+        }
+
+        if(find==false){
             user.getSingerLikes().add(singer);
             singer.getSingerLikesUsers().add(user);
         }
@@ -404,7 +416,13 @@ public class SingerService {
                 throw new BaseException(FAILED_TO_DELETE_SINGERCOMMENT);
             }
 
-            List<SingerComment> singerRecomments = singerCommentRepository.findBySingerCommentIdxParentAndIsDeleted(commentIdx,"N");
+            List<SingerComment> singerRecomments = new ArrayList<>();
+            try {
+                singerRecomments.addAll(singerCommentRepository.findBySingerCommentIdxParentAndIsDeleted(commentIdx, "N"));
+            }catch (Exception exception){
+                throw new BaseException(FAILED_TO_GET_SINGERCOMMENT);
+            }
+
             for(int i=0;i<singerRecomments.size();i++) {
                 singerRecomments.get(i).setIsDeleted("Y");
                 try {
@@ -429,7 +447,12 @@ public class SingerService {
 
         String comment = postSingerReCommentReq.getSingerComment();
 
-        SingerComment parent = singerCommentRepository.findById(commentIdx).orElse(null);
+        SingerComment parent;
+        try {
+            parent = singerCommentRepository.findById(commentIdx).orElse(null);
+        }catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_SINGERCOMMENT);
+        }
 
         if(parent!=null&&parent.getIsDeleted().equals("N")&&(parent.getSingerCommentIdxParent()==null||parent.getSingerCommentIdxParent()<=0)) {
 
@@ -478,7 +501,12 @@ public class SingerService {
 
 
         if(singerComment!=null && singerComment.getIsDeleted().equals("N")&& (singerComment.getSingerCommentIdxParent()==null || singerComment.getSingerCommentIdxParent()<=0)) {
-            SingerCommentLike singerCommentLike = singerCommentLikeRepository.findByUserAndSingerComment(user, singerComment);
+            SingerCommentLike singerCommentLike = null;
+            for(int i=0;i<user.getSingerCommentLikes().size();i++){
+                if(user.getSingerCommentLikes().get(i).getSingerComment().equals(singerComment)){
+                    singerCommentLike = user.getSingerCommentLikes().get(i);
+                }
+            }
 
             if (singerCommentLike == null) {
                 singerCommentLike = new SingerCommentLike(singerComment, user, like);

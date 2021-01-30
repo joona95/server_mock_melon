@@ -180,7 +180,13 @@ public class MusicService {
 
         for(int i=0;i<singersIdx.size();i++){
             Singer singer = singerProvider.retrieveSingerBySingerIdx(singersIdx.get(i));
-            MusicSinger musicSinger= musicSingerRepository.findByMusicAndSinger(music, singer);
+            MusicSinger musicSinger= null;
+            for(int j=0;j<music.getSingers().size();j++){
+                if(music.getSingers().get(j).getSinger().equals(singer)){
+                    musicSinger = music.getSingers().get(j);
+                }
+            }
+
             if(musicSinger== null) {
                 musicSinger = new MusicSinger(music, singer, types.get(i), isSingers.get(i));
             }
@@ -235,8 +241,15 @@ public class MusicService {
         User user = userProvider.retrieveUserByUserIdx(jwtService.getUserIdx());
         Music music = musicProvider.retrieveMusicByMusicIdx(musicIdx);
 
-        Music musicLikeUser = musicRepository.findByMusicIdxAndMusicLikesUsers(musicIdx, user);
-        if(musicLikeUser==null){
+        boolean find = false;
+        for(int i=0;i<user.getMusicLikes().size();i++){
+            if(user.getMusicLikes().get(i).equals(music)){
+                find=true;
+                break;
+            }
+        }
+
+        if(find==false){
             user.getMusicLikes().add(music);
             music.getMusicLikesUsers().add(user);
         }

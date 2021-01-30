@@ -31,7 +31,7 @@ public interface MusicRepository extends CrudRepository<Music, Integer> {
     //데뷔곡
     Music findByMusicIdxAndMusicLikesUsers(Integer musicIdx, User user);
 
-    List<Music> findByGenres(Genre genre);
+    List<Music> findByGenresAndIsDeleted(Genre genre, String isDeleted);
 
     @Query("SELECT m from Music m LEFT OUTER JOIN m.currentPlayMusics cpm ON cpm.createdAt > :yesterday GROUP BY m.musicIdx ORDER BY count(cpm) DESC")
     List<Music> findMusicsByCurrentPlayMusicCnt(@Param("yesterday") Timestamp yesterday, Pageable pageable);

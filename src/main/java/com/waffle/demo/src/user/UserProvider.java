@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -231,7 +233,7 @@ public class UserProvider {
         try {
             userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
         }catch (Exception ignored) {
-            throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
+            throw new BaseException(FAILED_TO_GET_USERMUSICPLAY);
         }
 
         Integer currentPlayMusicIdx = -1;
@@ -243,16 +245,19 @@ public class UserProvider {
             replayType = userMusicPlay.getReplayType();
         }
 
-        List<CurrentPlaylistMusic> currentPlaylistMusicList;
-        try {
-            currentPlaylistMusicList = currentPlaylistMusicRepository.findByUserAndIsDeletedOrderByOrder(user, "N");
-        } catch (Exception ignored) {
-            throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
+        List<CurrentPlaylistMusic> currentPlaylistMusicList=new ArrayList<>();
+        for(int i=0;i<user.getCurrentPlaylistMusics().size();i++){
+            if(user.getCurrentPlaylistMusics().get(i).getIsDeleted().equals("N")){
+                currentPlaylistMusicList.add(user.getCurrentPlaylistMusics().get(i));
+            }
         }
 
-        if (currentPlaylistMusicList == null) {
-            throw new BaseException(FAILED_TO_GET_CURRENTPLAYLIST);
-        }
+        Collections.sort(currentPlaylistMusicList, new Comparator<CurrentPlaylistMusic>() {
+            @Override
+            public int compare(CurrentPlaylistMusic o1, CurrentPlaylistMusic o2) {
+                return o1.getOrder().compareTo(o2.getOrder());
+            }
+        });
 
         List<GetCurrentPlaylistRes> getCurrentPlaylistResList = new ArrayList<>();
        for(int i=0;i<currentPlaylistMusicList.size();i++) {
@@ -299,7 +304,12 @@ public class UserProvider {
         Integer userIdx = jwtService.getUserIdx();
         User user = retrieveUserByUserIdx(userIdx);
 
-        UserMusicPlay userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
+        UserMusicPlay userMusicPlay;
+        try {
+            userMusicPlay = userMusicPlayRepository.findById(userIdx).orElse(null);
+        }catch (Exception ignored){
+            throw new BaseException(FAILED_TO_GET_USERMUSICPLAY);
+        }
         if(userMusicPlay==null)
             throw new BaseException(FAILED_TO_GET_USERMUSICPLAY);
 
@@ -321,11 +331,11 @@ public class UserProvider {
             String musicUrl = music.getMusicUrl();
             String lyric = music.getLyric();
 
-            List<UserVoucher> userVouchers;
-            try {
-                userVouchers = userVoucherRepository.findByUserAndVoucherEnd(user, "N");
-            } catch (Exception ignored) {
-                throw new BaseException(FAILED_TO_GET_CURRENTPLAYMUSIC);
+            List<UserVoucher> userVouchers = new ArrayList<>();
+            for(int i=0;i<user.getUserVouchers().size();i++){
+                if(user.getUserVouchers().get(i).getVoucherEnd().equals("N")){
+                    userVouchers.add(user.getUserVouchers().get(i));
+                }
             }
 
             boolean find = false;
