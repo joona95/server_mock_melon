@@ -4,20 +4,19 @@ import lombok.*;
 import javax.persistence.*;
 
 @Data
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name="member")
 public class Member {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
-    private long id;
-    private String name;
+    @EmbeddedId
+    private MemberPK pk;
+
+    @Column(name="age")
     private int age;
 
-    public Member(String name, int age){
-        this.name=name;
+    public Member(MemberPK pk, int age){
+        this.pk = pk;
         this.age=age;
     }
 }

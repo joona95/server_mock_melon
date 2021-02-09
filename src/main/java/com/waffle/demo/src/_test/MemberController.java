@@ -1,20 +1,24 @@
 package com.waffle.demo.src._test;
 
+import com.waffle.demo.src._test.models.Member;
+import com.waffle.demo.src._test.models.MemberPK;
 import org.springframework.web.bind.annotation.*;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.Map;
+import org.springframework.beans.factory.annotation.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/member")
 @RestController
 public class MemberController {
-/*
+
     @Autowired
     private MemberRepository memberRepository;
-
+/*
     @GetMapping("/test")
     public Member memberTest(){
-        return new Member(0L, "juna052", 20);
+        return new Member(new MemberPK("juna"),27);
     }
 
     @GetMapping("/test2")
@@ -27,11 +31,11 @@ public class MemberController {
                 new Member(5L, "juna5", 60)
         ));
     }
-
+*/
     @PostMapping("/insert") // CREATE
-    public Member insert(@RequestBody Map<String, String> map){
+    public Member insert(){
         return memberRepository.save(
-                new Member(map.get("name"), Integer.parseInt(map.get("age")))
+                new Member(new MemberPK(1, "juna"),27)
         );
     }
 
@@ -39,7 +43,7 @@ public class MemberController {
     public List<Member> selectAll(){
         return memberRepository.findAll();
     }
-
+/*
     @GetMapping("/select/{id}") // READ
     public Member selectOne(@PathVariable("id") long id){
         return memberRepository.findById(id).orElse(null);
@@ -50,6 +54,6 @@ public class MemberController {
         memberRepository.deleteById(id);
         return "삭제 완료";
     }
+*/
 
- */
 }
