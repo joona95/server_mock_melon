@@ -16,10 +16,11 @@ import java.util.List;
 
 import com.waffle.demo.config.BaseEntity;
 
-@NoArgsConstructor(access = AccessLevel.PUBLIC) // Unit Test 를 위해 PUBLIC
-@EqualsAndHashCode(callSuper = false, exclude={"userMusicPlay","userVouchers","currentPlaylistMusics", "singerLikes","singerComments","singerCommentLikes", "albumRates","musicLikes","albumLikes"})
-@Data // from lombok
-@ToString(exclude={"userMusicPlay","userVouchers","currentPlaylistMusics", "singerLikes","singerComments","singerCommentLikes", "albumRates","musicLikes","albumLikes"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // Unit Test 를 위해 PUBLIC
+@Getter
+//@EqualsAndHashCode(callSuper = false, exclude={"userMusicPlay","userVouchers","currentPlaylistMusics", "singerLikes","singerComments","singerCommentLikes", "albumRates","musicLikes","albumLikes"})
+//@Data // from lombok
+//@ToString(exclude={"userMusicPlay","userVouchers","currentPlaylistMusics", "singerLikes","singerComments","singerCommentLikes", "albumRates","musicLikes","albumLikes"})
 @Entity // 필수, Class 를 Database Table화 해주는 것이다
 @Table(name = "User") // Table 이름을 명시해주지 않으면 class 이름을 Table 이름으로 대체한다.
 public class User extends BaseEntity {
@@ -95,7 +96,6 @@ public class User extends BaseEntity {
     private List<Album> albumLikes = new ArrayList<>();
 
 
-
     public User(String userId, String password, String nickname, String phoneNum, String email, String gender) {
         this.userId = userId;
         this.password = password;
@@ -103,5 +103,14 @@ public class User extends BaseEntity {
         this.phoneNum = phoneNum;
         this.email = email;
         this.gender = gender;
+    }
+
+
+    public void updateUserInfo(String nickname, String phoneNum, String email, String authentication, String userProfileUrl){
+        this.nickname = nickname;
+        this.phoneNum = phoneNum;
+        this.email = email;
+        this.authentication = authentication;
+        this.userProfileUrl = userProfileUrl;
     }
 }

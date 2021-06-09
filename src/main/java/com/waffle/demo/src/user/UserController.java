@@ -13,6 +13,7 @@ import java.util.List;
 import static com.waffle.demo.config.BaseResponseStatus.*;
 import static com.waffle.demo.config.utils.ValidationRegex.*;
 
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -31,6 +32,7 @@ public class UserController {
      * @return BaseResponse<List<GetUserRes>>
      */
     @ResponseBody
+    //@CrossOrigin(origins = "http://127.0.0.1")
     @GetMapping("")
     public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(value="id",required = false) String id,@RequestParam(value="gender",required = false) String genderPar, @RequestParam(value = "grade", required = false) String gradePar) {
         try {

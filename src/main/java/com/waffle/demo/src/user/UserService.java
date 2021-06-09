@@ -133,11 +133,7 @@ public class UserService {
         }
 
         //유저 정보 수정
-        user.setNickname(patchUserReq.getNickname());
-        user.setPhoneNum(patchUserReq.getPhoneNum());
-        user.setEmail(patchUserReq.getEmail());
-        user.setAuthentication(patchUserReq.getAuthentication());
-        user.setUserProfileUrl(patchUserReq.getUserProfileUrl());
+        user.updateUserInfo(patchUserReq.getNickname(), patchUserReq.getPhoneNum(), patchUserReq.getEmail(), patchUserReq.getAuthentication(), patchUserReq.getUserProfileUrl());
         try {
             user = userRepository.save(user);
         } catch (Exception exception) {

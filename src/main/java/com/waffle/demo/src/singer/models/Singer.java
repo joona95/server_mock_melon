@@ -33,7 +33,6 @@ public class Singer extends BaseEntity {
     @Column(name = "channelName", nullable = false, length=100)
     private String channelName;
 
-    //@OneToOne
     @Column(name = "profileMusicIdx")
     private int profileMusicIdx;
 
